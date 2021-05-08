@@ -1,4 +1,3 @@
-import os
 import time
 import multiprocessing
 
@@ -17,11 +16,11 @@ class MonitoringProcess(multiprocessing.Process):
         log('Starting monitoring process')
 
         while not self.stop_signal.is_set():
+            time.sleep(1)
+
             while not self.messages_queue.empty():
                 msg = self.messages_queue.get()
                 if msg == 'monitoring/info':
                     print('Gathering monitoring info...')
-
-            time.sleep(1)
 
         log('Stopping monitoring process')

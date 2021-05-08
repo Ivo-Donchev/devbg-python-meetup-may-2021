@@ -5,6 +5,7 @@ import paho.mqtt.client as mqtt
 from queue import Queue
 
 from monitoring import MonitoringProcess
+from driver import DriverProcess
 
 
 # MQTT Configuration
@@ -19,6 +20,9 @@ class State:
 
     MONITORING_QUEUE = multiprocessing.Queue()
     MONITORING_STOP = multiprocessing.Event()
+
+    DRIVER_QUEUE = multiprocessing.Queue()
+    DRIVER_STOP = multiprocessing.Event()
 
 
 class MqttMessage:
@@ -88,8 +92,9 @@ def process_pending_mqtt_messages():
 
         if topic == 'shutdown':
             if payload == b'true':
-                State.SHUTDOWN = True
                 State.MONITORING_STOP.set()
+                State.DRIVER_STOP.set()
+                State.SHUTDOWN = True
 
         if topic == 'monitoring/info':
             State.MONITORING_QUEUE.put(topic)
@@ -97,14 +102,22 @@ def process_pending_mqtt_messages():
 
 def main():
     client = setup_mqtt_client()
-    log('Starting monitoring process...')
 
+    log('Starting monitoring process...')
     monitoring = MonitoringProcess(
         messages_queue=State.MONITORING_QUEUE,
         stop_signal=State.MONITORING_STOP
     )
     monitoring.daemon = True
     monitoring.start()
+
+    log('Starting driver process...')
+    driver = DriverProcess(
+        messages_queue=State.DRIVER_QUEUE,
+        stop_signal=State.DRIVER_STOP
+    )
+    driver.daemon = True
+    driver.start()
 
     while State.SHUTDOWN is False:
         log('Main loop iteration')
