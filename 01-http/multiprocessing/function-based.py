@@ -1,5 +1,5 @@
 import requests
-import threading
+import multiprocessing
 from common import Timer
 
 
@@ -9,37 +9,37 @@ def http_get(url):
     return response
 
 
-def singlethreaded():
+def singleprocessed():
     for i in range(20):
         http_get('https://abv.bg')
 
 
-def multithreaded():
-    threads = []
+def multiprocessed():
+    processes = []
 
-    # Start 10 separate threads
+    # Start 10 separate processes
     for i in range(20):
-        thread = threading.Thread(
+        process = multiprocessing.Process(
             target=http_get,
             args=('https://abv.bg',)
         )
 
-        thread.start()
-        threads.append(thread)
+        process.start()
+        processes.append(process)
 
     # Wait for all the threads to finish
-    for thread in threads:
-        thread.join()
+    for process in processes:
+        process.join()
 
 
 def main():
     print('Running....')
 
-    with Timer('Single threaded'):
-        singlethreaded()
+    with Timer('Single process'):
+        singleprocessed()
 
-    with Timer('Multiple threads'):
-        multithreaded()
+    with Timer('Multiple processes'):
+        multiprocessed()
 
 
 if __name__ == '__main__':

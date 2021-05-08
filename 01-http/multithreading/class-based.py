@@ -1,6 +1,6 @@
-import time
 import requests
 import threading
+from common import Timer
 
 
 def http_get(url):
@@ -36,13 +36,11 @@ def multithreaded():
 def main():
     print('Running....')
 
-    start = time.time()
-    singlethreaded()
-    print('Without threads: ', time.time() - start)
+    with Timer('Single threaded'):
+        singlethreaded()
 
-    start = time.time()
-    multithreaded()
-    print('With threads: ', time.time() - start)
+    with Timer('Multiple threads'):
+        multithreaded()
 
 
 if __name__ == '__main__':
