@@ -13,7 +13,10 @@ def main():
     print(f'Counter at the beginning: {COUNTER}')
 
     # Generate threads objects
-    threads = [threading.Thread(target=increase_counter) for _ in range(50)]
+    threads = [
+        threading.Thread(target=increase_counter)
+        for _ in range(50)
+    ]
 
     # Start all threads
     for thread in threads:
